@@ -1192,6 +1192,16 @@
                     alert(`Successfully ingested '${data.file_name}' (${data.chunks_created} chunks in ${data.processing_time_ms}ms)`);
                     fetchDocuments();
                     return;
+                } else {
+                    let errDetail = "Upload error";
+                    try {
+                        const errData = await res.json();
+                        errDetail = errData.detail || JSON.stringify(errData);
+                    } catch (e) {
+                        errDetail = await res.text();
+                    }
+                    alert(`Server Document Ingestion Error (HTTP ${res.status}): ${errDetail}`);
+                    return;
                 }
             } catch (err) {
                 console.warn("Backend API unavailable, executing client-side in-browser indexing:", err);
