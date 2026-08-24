@@ -11,6 +11,7 @@ class CortexAnalystResponse(BaseModel):
     status_code: int = 200
     answer: str = ""
     sql: Optional[str] = None
+    query_results: Optional[Dict[str, Any]] = None
     request_id: Optional[str] = None
     verified_query_used: bool = False
     confidence: Optional[Dict[str, Any]] = None
@@ -42,6 +43,72 @@ class CortexAnalystClient:
     def is_configured(self) -> bool:
         """Check if required Snowflake Cortex configuration parameters are present."""
         return bool(self.base_url and self.pat and self.semantic_view)
+
+    def execute_sql(self, sql_statement: str) -> Optional[Dict[str, Any]]:
+        """Executes a SQL query on Snowflake via the Snowflake SQL REST API (/api/v2/statements)."""
+        if not self.base_url or not self.pat:
+            return {
+                "success": False,
+                "columns": [],
+                "rows": [],
+                "row_count": 0,
+                "error": "Missing Snowflake base URL or PAT credentials.",
+            }
+
+        url = f"{self.base_url}/api/v2/statements"
+        headers = {
+            "Authorization": f"Bearer {self.pat}",
+            "X-Snowflake-Authorization-Token-Type": "PROGRAMMATIC_ACCESS_TOKEN",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
+        payload = {
+            "statement": sql_statement,
+            "timeout": self.timeout,
+            "database": settings.snowflake_database,
+            "schema": settings.snowflake_schema,
+            "warehouse": settings.snowflake_warehouse,
+            "role": settings.snowflake_role,
+        }
+
+        try:
+            res = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            if res.status_code != 200:
+                err_text = ""
+                try:
+                    err_json = res.json()
+                    err_text = err_json.get("message", res.text)
+                except Exception:
+                    err_text = res.text
+                return {
+                    "success": False,
+                    "columns": [],
+                    "rows": [],
+                    "row_count": 0,
+                    "error": f"Snowflake SQL API execution failed (HTTP {res.status_code}): {err_text}",
+                }
+
+            data = res.json()
+            row_type = data.get("resultSetMetaData", {}).get("rowType", [])
+            columns = [col.get("name", f"COL_{idx+1}") for idx, col in enumerate(row_type)]
+            rows = data.get("data", [])
+
+            return {
+                "success": True,
+                "columns": columns,
+                "rows": rows,
+                "row_count": len(rows),
+                "error": None,
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "columns": [],
+                "rows": [],
+                "row_count": 0,
+                "error": f"Exception executing SQL query: {str(e)}",
+            }
 
     def query(self, question: str) -> CortexAnalystResponse:
         """Sends a natural language question to Snowflake Cortex Analyst REST API."""
@@ -139,11 +206,16 @@ class CortexAnalystClient:
         req_id = data.get("request_id")
         warnings = data.get("warnings", [])
 
+        query_results = None
+        if sql_statement:
+            query_results = self.execute_sql(sql_statement)
+
         return CortexAnalystResponse(
             success=True,
             status_code=200,
             answer=answer_text,
             sql=sql_statement,
+            query_results=query_results,
             request_id=req_id,
             verified_query_used=verified_query_used,
             confidence=confidence,

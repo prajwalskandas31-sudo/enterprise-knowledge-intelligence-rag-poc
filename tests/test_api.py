@@ -48,9 +48,9 @@ class TestAPI(unittest.TestCase):
 
     @patch("requests.post")
     def test_api_cortex_query_routing(self, mock_post):
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
+        mock_cortex_response = MagicMock()
+        mock_cortex_response.status_code = 200
+        mock_cortex_response.json.return_value = {
             "message": {
                 "role": "analyst",
                 "content": [
@@ -60,7 +60,17 @@ class TestAPI(unittest.TestCase):
             },
             "request_id": "req-cortex-api-1"
         }
-        mock_post.return_value = mock_response
+
+        mock_sql_response = MagicMock()
+        mock_sql_response.status_code = 200
+        mock_sql_response.json.return_value = {
+            "resultSetMetaData": {
+                "rowType": [{"name": "CITY"}, {"name": "AVG_ANNUAL_REVENUE"}]
+            },
+            "data": [["New York", 15200000]]
+        }
+
+        mock_post.side_effect = [mock_cortex_response, mock_sql_response]
 
         query_resp = self.client.post(
             "/api/query",
@@ -72,6 +82,9 @@ class TestAPI(unittest.TestCase):
         self.assertIn("New York", query_data["answer"])
         self.assertIn("SELECT city", query_data["sql"])
         self.assertEqual(query_data["request_id"], "req-cortex-api-1")
+        self.assertIsNotNone(query_data["query_results"])
+        self.assertEqual(query_data["query_results"]["columns"], ["CITY", "AVG_ANNUAL_REVENUE"])
+        self.assertEqual(query_data["query_results"]["rows"], [["New York", 15200000]])
 
 
 if __name__ == "__main__":

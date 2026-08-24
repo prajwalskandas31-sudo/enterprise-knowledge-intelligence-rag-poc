@@ -67,6 +67,7 @@ def query_intelligence(request: QueryApiRequest):
             query=request.query,
             answer=cortex_res.answer,
             sql=cortex_res.sql,
+            query_results=cortex_res.query_results,
             request_id=cortex_res.request_id,
             verified_query_used=cortex_res.verified_query_used,
             confidence=cortex_res.confidence,

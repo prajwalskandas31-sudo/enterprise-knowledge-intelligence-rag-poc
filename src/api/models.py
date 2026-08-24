@@ -36,6 +36,7 @@ class UnifiedQueryResponse(BaseModel):
     query: str
     answer: str
     sql: Optional[str] = None
+    query_results: Optional[Dict[str, Any]] = None
     request_id: Optional[str] = None
     verified_query_used: bool = False
     confidence: Optional[Dict[str, Any]] = None

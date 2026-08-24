@@ -38,6 +38,9 @@ for idx, q in enumerate(cortex_questions, 1):
         print(f"Generated SQL Snippet : {res.sql.strip()[:150]}...")
     print(f"Request ID            : {res.request_id}")
     print(f"Verified Query Used   : {res.verified_query_used}")
+    if res.query_results:
+        print(f"Executed Table Columns: {res.query_results.get('columns')}")
+        print(f"Executed Table Rows   : {res.query_results.get('rows')}")
     print(f"Latency               : {res.latency_ms} ms\n")
 
 print("--- [Test 3] Enterprise RAG Document Question ---")
