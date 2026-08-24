@@ -505,6 +505,84 @@
             margin-top: 10px;
         }
 
+        /* Snowflake Tabular Query Results Table */
+        .results-table-container {
+            margin-top: 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            overflow-x: auto;
+            backdrop-filter: blur(8px);
+        }
+
+        .results-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .results-table-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .results-count-badge {
+            font-size: 0.72rem;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .data-table th {
+            background: rgba(30, 41, 59, 0.9);
+            color: var(--accent-cyan);
+            padding: 10px 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid rgba(6, 182, 212, 0.3);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.35);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(6, 182, 212, 0.08);
+        }
+
+        .data-table-empty {
+            padding: 14px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
         /* Citations & Chunks Container */
         .chunks-grid {
             display: grid;
@@ -706,6 +784,15 @@
                     Ask any question above! The system will automatically route structured business data analytics questions to Snowflake Cortex Analyst and document knowledge questions to Enterprise RAG.
                 </div>
 
+                <!-- Executed SQL Tabular Query Results (For Cortex Analyst Queries) -->
+                <div id="cortexTableContainer" class="results-table-container" style="display:none;">
+                    <div class="results-table-header">
+                        <span class="results-table-title">📊 Executed Query Results Data Table</span>
+                        <span class="results-count-badge" id="cortexRowCount">0 Rows</span>
+                    </div>
+                    <div id="cortexTableWrapper" style="overflow-x:auto;"></div>
+                </div>
+
                 <!-- Generated SQL Viewer (For Cortex Analyst Queries) -->
                 <details id="sqlDetails" style="display:none; margin-top: 8px;">
                     <summary style="color:var(--accent-cyan);">⚡ View Snowflake Generated SQL Statement & Confidence Metadata</summary>
@@ -824,6 +911,7 @@
 
             document.getElementById('answerText').innerHTML = `<span style="color:var(--text-muted)">Executing intelligence engine query...</span>`;
             document.getElementById('sqlDetails').style.display = 'none';
+            document.getElementById('cortexTableContainer').style.display = 'none';
 
             try {
                 const res = await fetch(`${API_BASE}/query`, {
@@ -849,6 +937,42 @@
                     sourcePill.innerHTML = '❄️ Snowflake Cortex Analyst';
                     document.getElementById('citationBadge').innerText = 'Snowflake Data';
                     
+                    // Show Tabular Results if available
+                    if (data.query_results && data.query_results.success && data.query_results.columns && data.query_results.columns.length > 0) {
+                        const qRes = data.query_results;
+                        document.getElementById('cortexTableContainer').style.display = 'block';
+                        document.getElementById('cortexRowCount').innerText = `${qRes.row_count} Row${qRes.row_count === 1 ? '' : 's'} Returned`;
+                        
+                        let tableHtml = `<table class="data-table"><thead><tr>`;
+                        qRes.columns.forEach(col => {
+                            tableHtml += `<th>${escapeHtml(col)}</th>`;
+                        });
+                        tableHtml += `</tr></thead><tbody>`;
+
+                        if (qRes.rows && qRes.rows.length > 0) {
+                            qRes.rows.forEach(row => {
+                                tableHtml += `<tr>`;
+                                row.forEach(val => {
+                                    const formattedVal = (val === null || val === undefined) 
+                                        ? '<span style="color:var(--text-muted); font-style:italic;">NULL</span>' 
+                                        : escapeHtml(String(val));
+                                    tableHtml += `<td>${formattedVal}</td>`;
+                                });
+                                tableHtml += `</tr>`;
+                            });
+                        } else {
+                            tableHtml += `<tr><td colspan="${qRes.columns.length}" class="data-table-empty">Query executed successfully, but returned no matching data rows.</td></tr>`;
+                        }
+                        tableHtml += `</tbody></table>`;
+                        document.getElementById('cortexTableWrapper').innerHTML = tableHtml;
+                    } else if (data.query_results && data.query_results.error) {
+                        document.getElementById('cortexTableContainer').style.display = 'block';
+                        document.getElementById('cortexRowCount').innerText = `Execution Warning`;
+                        document.getElementById('cortexTableWrapper').innerHTML = `<div class="data-table-empty" style="color:#ef4444;">⚠️ ${escapeHtml(data.query_results.error)}</div>`;
+                    } else {
+                        document.getElementById('cortexTableContainer').style.display = 'none';
+                    }
+
                     // Show SQL if available
                     if (data.sql) {
                         document.getElementById('sqlDetails').style.display = 'block';
@@ -866,6 +990,7 @@
                     document.getElementById('contextDetails').style.display = 'none';
 
                 } else {
+                    document.getElementById('cortexTableContainer').style.display = 'none';
                     sourcePill.className = 'source-pill rag';
                     sourcePill.innerHTML = '📄 Enterprise Document RAG';
                     document.getElementById('citationBadge').innerText = `${data.citations ? data.citations.length : 0} Citations`;
