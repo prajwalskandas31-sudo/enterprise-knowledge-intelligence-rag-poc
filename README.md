@@ -125,8 +125,8 @@ Every major component—from text extraction and chunking to vector similarity i
 
 1. **Clone the repository & create virtual environment**:
    ```bash
-   git clone <repo-url>
-   cd <repo-dir>
+   git clone https://github.com/prajwalskandas31-sudo/enterprise-knowledge-intelligence-rag-poc.git
+   cd enterprise-knowledge-intelligence-rag-poc
    python -m venv venv
    # On Windows:
    venv\Scripts\activate
