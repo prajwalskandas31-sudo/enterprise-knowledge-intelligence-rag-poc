@@ -170,9 +170,56 @@ python -m unittest discover tests
 
 ---
 
-## ❄️ Snowflake & Cortex AI Alignment
+## ❄️ Snowflake Cortex Analyst Integration
 
-For FDP workshop attendees transitioning from Python RAG code to Snowflake Cortex AI, read the dedicated mapping guide in [`docs/snowflake-cortex-mapping.md`](file:///c:/Users/skand/OneDrive/Desktop/FDP%20-%20Snowflake%20-%20Cortex%20AI%20-%20SVIT%20-%2024.8.26/Apps/Cortex%20AI%20-%20Own%20POC%20-%20V1%20-%20Antigravity/docs/snowflake-cortex-mapping.md).
+This repository features a **Dual Intelligence Engine Architecture**:
+1. **Enterprise Document RAG**: Unstructured PDF, TXT, and Markdown documents processed locally via embeddings and vector similarity search.
+2. **Snowflake Cortex Analyst**: Structured enterprise business data queried via natural language to SQL through Snowflake Cortex Analyst REST API.
+
+### High-Level Architecture Flow
+
+```
+                                 ┌───────────────────────────────┐
+                                 │   User Natural Language Query │
+                                 └──────────────┬────────────────┘
+                                                │
+                                                v
+                                 ┌───────────────────────────────┐
+                                 │    Query Intent Router        │
+                                 └──────┬─────────────────┬──────┘
+                                        │                 │
+            Structured Business Data    │                 │    Unstructured Document Knowledge
+            (Revenue, Cities, Customers)│                 │    (Security Policies, HR Rules)
+                                        v                 v
+                 ┌─────────────────────────────┐   ┌─────────────────────────────┐
+                 │  Snowflake Cortex Analyst   │   │  Enterprise RAG Pipeline    │
+                 └──────────────┬──────────────┘   └──────────────┬──────────────┘
+                                │                                 │
+                                v                                 v
+                 ┌─────────────────────────────┐   ┌─────────────────────────────┐
+                 │ Semantic View               │   │ Vector Store Index          │
+                 │ (CUSTOMER_ANALYTICS)        │   │ (data/vector_store.json)    │
+                 └──────────────┬──────────────┘   └──────────────┬──────────────┘
+                                │                                 │
+                                v                                 v
+                 ┌─────────────────────────────┐   ┌─────────────────────────────┐
+                 │ Dynamic SQL Generation      │   │ Top-K Cosine Context        │
+                 └──────────────┬──────────────┘   └──────────────┬──────────────┘
+                                │                                 │
+                                └────────────────┬────────────────┘
+                                                 │
+                                                 v
+                                 ┌───────────────────────────────┐
+                                 │ Unified Response & UI Visual  │
+                                 └───────────────────────────────┘
+```
+
+### Live Cortex Analyst Smoke Test
+
+To execute a live end-to-end smoke test against your Snowflake account using your local `.env`:
+```bash
+python test_live_smoke.py
+```
 
 ---
 

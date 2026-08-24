@@ -33,5 +33,16 @@ class Settings(BaseModel):
     vector_store_path: str = os.getenv("VECTOR_STORE_PATH", "data/vector_store.json")
     data_dir: str = os.getenv("DATA_DIR", "data/samples")
 
+    # Snowflake Cortex Analyst
+    snowflake_base_url: str = os.getenv("SNOWFLAKE_BASE_URL", "https://DKQGJIE-RM49461.snowflakecomputing.com")
+    snowflake_account: str = os.getenv("SNOWFLAKE_ACCOUNT", "DKQGJIE-RM49461")
+    snowflake_user: str = os.getenv("SNOWFLAKE_USER", "PRAJWALSKANDAS31")
+    snowflake_pat: Optional[str] = os.getenv("SNOWFLAKE_PAT", None)
+    snowflake_role: str = os.getenv("SNOWFLAKE_ROLE", "ACCOUNTADMIN")
+    snowflake_warehouse: str = os.getenv("SNOWFLAKE_WAREHOUSE", "COMPUTE_WH")
+    snowflake_database: str = os.getenv("SNOWFLAKE_DATABASE", "FDP_CORTEX_POC")
+    snowflake_schema: str = os.getenv("SNOWFLAKE_SCHEMA", "RAW_DATA")
+    snowflake_semantic_view: str = os.getenv("SNOWFLAKE_SEMANTIC_VIEW", "FDP_CORTEX_POC.RAW_DATA.CUSTOMER_ANALYTICS")
+
 
 settings = Settings()

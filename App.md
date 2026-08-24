@@ -16,4 +16,6 @@ Optimize for educational clarity and reproducibility rather than enterprise-scal
 
 The final repository must be understandable by a developer attending an FDP workshop, clonable from GitHub, configurable with environment variables, and runnable using clear documented commands.
 
+Integrate Snowflake Cortex Analyst as a second intelligence engine alongside the existing enterprise-document RAG pipeline, with automated query routing distinguishing structured analytics questions from unstructured document knowledge queries.
+
 Before implementation, inspect the repository requirements and produce a concise architecture plan. Then implement incrementally and verify that the application actually runs. Do not merely generate placeholder files.

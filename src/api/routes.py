@@ -3,13 +3,16 @@ import shutil
 from typing import List
 from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
 from src.config import settings
-from src.api.models import QueryApiRequest, IngestTextRequest, HealthResponse, DocumentSummary
+from src.api.models import QueryApiRequest, IngestTextRequest, HealthResponse, DocumentSummary, UnifiedQueryResponse
 from src.rag.pipeline import RAGPipeline, RAGQueryResult, IngestResult
+from src.cortex.analyst import CortexAnalystClient
+from src.cortex.router import QueryRouter, QueryDestination
 
-router = APIRouter(prefix="/api", tags=["RAG Endpoints"])
+router = APIRouter(prefix="/api", tags=["Enterprise Intelligence Endpoints"])
 
-# Global singleton RAG pipeline instance
+# Global singletons
 pipeline = RAGPipeline()
+cortex_client = CortexAnalystClient()
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -21,6 +24,8 @@ def health_check():
         embedding_provider=settings.embedding_provider,
         llm_provider=settings.llm_provider,
         documents_indexed=len(docs),
+        cortex_configured=cortex_client.is_configured(),
+        cortex_semantic_view=settings.snowflake_semantic_view,
     )
 
 
@@ -36,20 +41,71 @@ def get_configuration():
         "chunk_overlap": settings.chunk_overlap,
         "top_k": settings.top_k,
         "similarity_threshold": settings.similarity_threshold,
+        "snowflake_base_url": settings.snowflake_base_url,
+        "snowflake_account": settings.snowflake_account,
+        "snowflake_user": settings.snowflake_user,
+        "snowflake_role": settings.snowflake_role,
+        "snowflake_warehouse": settings.snowflake_warehouse,
+        "snowflake_database": settings.snowflake_database,
+        "snowflake_schema": settings.snowflake_schema,
+        "snowflake_semantic_view": settings.snowflake_semantic_view,
+        "cortex_configured": cortex_client.is_configured(),
     }
 
 
-@router.post("/query", response_model=RAGQueryResult)
-def query_rag(request: QueryApiRequest):
+@router.post("/query", response_model=UnifiedQueryResponse)
+def query_intelligence(request: QueryApiRequest):
     if not request.query.strip():
         raise HTTPException(status_code=400, detail="Query string cannot be empty.")
     
-    result = pipeline.query(
+    route_res = QueryRouter.route(request.query, mode=request.mode)
+
+    if route_res.destination == QueryDestination.CORTEX_ANALYST:
+        cortex_res = cortex_client.query(request.query)
+        return UnifiedQueryResponse(
+            source="cortex_analyst",
+            query=request.query,
+            answer=cortex_res.answer,
+            sql=cortex_res.sql,
+            request_id=cortex_res.request_id,
+            verified_query_used=cortex_res.verified_query_used,
+            confidence=cortex_res.confidence,
+            total_time_ms=cortex_res.latency_ms,
+            routing_reasoning=route_res.reasoning,
+        )
+
+    # Route to Enterprise RAG pipeline
+    rag_result = pipeline.query(
         query_text=request.query,
         top_k=request.top_k or settings.top_k,
         similarity_threshold=request.similarity_threshold if request.similarity_threshold is not None else settings.similarity_threshold,
     )
-    return result
+
+    citations_list = [c.model_dump() if hasattr(c, "model_dump") else c.dict() for c in rag_result.citations]
+
+    return UnifiedQueryResponse(
+        source="rag",
+        query=request.query,
+        answer=rag_result.answer,
+        citations=citations_list,
+        retrieved_chunks=rag_result.retrieved_chunks,
+        formatted_context=rag_result.formatted_context,
+        embedding_model=rag_result.embedding_model,
+        llm_model=rag_result.llm_model,
+        total_time_ms=rag_result.total_time_ms,
+        retrieval_time_ms=rag_result.retrieval_time_ms,
+        generation_time_ms=rag_result.generation_time_ms,
+        routing_reasoning=route_res.reasoning,
+    )
+
+
+@router.post("/cortex/query")
+def direct_cortex_query(request: QueryApiRequest):
+    """Direct endpoint to query Snowflake Cortex Analyst bypassing auto router."""
+    if not request.query.strip():
+        raise HTTPException(status_code=400, detail="Query string cannot be empty.")
+    cortex_res = cortex_client.query(request.query)
+    return cortex_res
 
 
 @router.post("/upload", response_model=IngestResult)

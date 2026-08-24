@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Knowledge Intelligence | Modular RAG Architecture POC</title>
+    <title>Enterprise Knowledge Intelligence | Dual Engine RAG & Snowflake Cortex Analyst POC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@
 
         /* Glassmorphism Header */
         header {
-            background: rgba(18, 24, 36, 0.75);
+            background: rgba(18, 24, 36, 0.85);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-color);
             position: sticky;
@@ -65,17 +65,17 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: white;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
         }
 
         .logo-title h1 {
@@ -83,6 +83,7 @@
             font-weight: 700;
             letter-spacing: -0.02em;
             background: linear-gradient(to right, #ffffff, #cbd5e1);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -206,7 +207,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 260px;
+            max-height: 220px;
             overflow-y: auto;
         }
 
@@ -265,6 +266,31 @@
             box-shadow: var(--shadow-glow);
         }
 
+        .mode-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .mode-btn {
+            background: rgba(32, 43, 61, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+            border-color: var(--accent-cyan);
+            color: var(--text-primary);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+        }
+
         .query-input-wrapper {
             display: flex;
             gap: 12px;
@@ -290,7 +316,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
             color: white;
             border: none;
             padding: 12px 24px;
@@ -309,10 +335,19 @@
             transform: translateY(-1px);
         }
 
+        .prompt-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+
         .prompt-samples {
             display: flex;
             gap: 8px;
-            margin-top: 12px;
             flex-wrap: wrap;
         }
 
@@ -327,10 +362,20 @@
             transition: all 0.15s ease;
         }
 
-        .sample-pill:hover {
+        .sample-pill.cortex {
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .sample-pill.cortex:hover {
             border-color: var(--accent-cyan);
             color: var(--text-primary);
-            background: rgba(6, 182, 212, 0.1);
+            background: rgba(6, 182, 212, 0.15);
+        }
+
+        .sample-pill.rag:hover {
+            border-color: var(--accent-violet);
+            color: var(--text-primary);
+            background: rgba(139, 92, 246, 0.15);
         }
 
         /* Pipeline Steps Diagram */
@@ -381,6 +426,43 @@
             gap: 16px;
         }
 
+        .engine-source-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .source-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .source-pill.cortex {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+
+        .source-pill.rag {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2));
+            border: 1px solid var(--accent-violet);
+            color: var(--accent-violet);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .reasoning-pill {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
         .answer-content {
             font-size: 1rem;
             line-height: 1.65;
@@ -407,6 +489,20 @@
             font-weight: 700;
             color: var(--accent-cyan);
             font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* SQL Viewer Card */
+        .sql-box {
+            background: #05070a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            overflow-x: auto;
+            white-space: pre;
+            margin-top: 10px;
         }
 
         /* Citations & Chunks Container */
@@ -456,7 +552,7 @@
             overflow-y: auto;
         }
 
-        /* Code/Context Accordion */
+        /* Accordion */
         details {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -471,18 +567,6 @@
             cursor: pointer;
             outline: none;
         }
-
-        pre {
-            margin-top: 12px;
-            background: #05070a;
-            padding: 14px;
-            border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            color: #a7f3d0;
-            overflow-x: auto;
-            border: 1px solid var(--border-color);
-        }
     </style>
 </head>
 <body>
@@ -492,14 +576,14 @@
         <div class="logo-container">
             <div class="logo-icon">IQ</div>
             <div class="logo-title">
-                <h1>Enterprise Knowledge Intelligence RAG</h1>
-                <p>Modular Architecture • Educational POC • Snowflake Cortex AI Alignment</p>
+                <h1>Enterprise Knowledge Intelligence</h1>
+                <p>Dual Intelligence Engine • Snowflake Cortex Analyst & Enterprise Document RAG</p>
             </div>
         </div>
         <div class="header-badges">
             <div class="badge"><div class="badge-dot"></div> Status: <span id="statusText">Healthy</span></div>
-            <div class="badge">Embeddings: <span id="embedModelText" style="color:var(--accent-cyan); font-weight:700;">all-MiniLM-L6-v2</span></div>
-            <div class="badge">LLM: <span id="llmModelText" style="color:var(--accent-violet); font-weight:700;">Mock LLM</span></div>
+            <div class="badge">❄️ Cortex Analyst: <span id="cortexStatusText" style="color:var(--accent-cyan); font-weight:700;">Active</span></div>
+            <div class="badge">Semantic View: <span id="semanticViewText" style="color:var(--accent-violet); font-weight:700; font-family:'JetBrains Mono', monospace;">CUSTOMER_ANALYTICS</span></div>
         </div>
     </header>
 
@@ -533,13 +617,14 @@
                 </div>
             </div>
 
-            <!-- System Architecture Mapping -->
-            <div class="card" style="background: linear-gradient(180deg, var(--bg-card), rgba(139, 92, 246, 0.05));">
+            <!-- Snowflake Semantic Model Summary -->
+            <div class="card" style="background: linear-gradient(180deg, var(--bg-card), rgba(6, 182, 212, 0.05));">
                 <div class="card-header">
-                    <span class="card-title" style="color: var(--accent-violet);">❄️ Snowflake Cortex Alignment</span>
+                    <span class="card-title" style="color: var(--accent-cyan);">❄️ Snowflake Cortex View</span>
                 </div>
                 <div style="font-size:0.78rem; color:var(--text-secondary); line-height:1.55;">
-                    This POC implements standard Python RAG building blocks. See <code>docs/snowflake-cortex-mapping.md</code> for the full 1-to-1 capability map contrasting local code vs <code>CORTEX.SEARCH</code> & <code>CORTEX.COMPLETE</code>.
+                    Connected to <code>FDP_CORTEX_POC.RAW_DATA.CUSTOMER_ANALYTICS</code>.<br>
+                    Enables natural language analytics over customer demographics, city totals, and annual revenue.
                 </div>
             </div>
 
@@ -550,97 +635,139 @@
 
             <!-- Search Query Box -->
             <div class="query-box-container">
+                
+                <!-- Engine Mode Selector -->
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="modeAuto" onclick="selectMode('auto')">⚡ Auto Router</button>
+                    <button class="mode-btn" id="modeCortex" onclick="selectMode('cortex_analyst')">❄️ Cortex Analyst (SQL)</button>
+                    <button class="mode-btn" id="modeRag" onclick="selectMode('rag')">📄 Enterprise RAG (Docs)</button>
+                </div>
+
                 <div class="query-input-wrapper">
-                    <input type="text" id="queryInput" class="query-input" placeholder="Ask a question about your enterprise documents..." onkeydown="if(event.key==='Enter') runQuery()">
+                    <input type="text" id="queryInput" class="query-input" placeholder="Ask a structured data question or an enterprise document question..." onkeydown="if(event.key==='Enter') runQuery()">
                     <button class="btn-primary" onclick="runQuery()">
-                        <span>Search & Generate</span> ➔
+                        <span>Execute Query</span> ➔
                     </button>
                 </div>
+
+                <!-- Structured Data Samples -->
+                <div class="prompt-section-title">📊 Snowflake Cortex Analytics Samples:</div>
                 <div class="prompt-samples">
-                    <span style="font-size:0.75rem; color:var(--text-muted); align-self:center; font-weight:600;">Sample Queries:</span>
-                    <div class="sample-pill" onclick="setQuery('What is the password security policy?')">Password Policy</div>
-                    <div class="sample-pill" onclick="setQuery('What are the remote work eligibility guidelines?')">Remote Work Eligibility</div>
-                    <div class="sample-pill" onclick="setQuery('How does the RAG architecture pipeline work?')">RAG Architecture</div>
+                    <div class="sample-pill cortex" onclick="setQuery('Which city has the highest average customer revenue?')">City Avg Revenue</div>
+                    <div class="sample-pill cortex" onclick="setQuery('What is the total annual revenue across all customers?')">Total Annual Revenue</div>
+                    <div class="sample-pill cortex" onclick="setQuery('Which industry has the most customers?')">Top Industry by Count</div>
                 </div>
+
+                <!-- Document Samples -->
+                <div class="prompt-section-title">📄 Enterprise Document RAG Samples:</div>
+                <div class="prompt-samples">
+                    <div class="sample-pill rag" onclick="setQuery('What is the password security policy?')">Password Policy</div>
+                    <div class="sample-pill rag" onclick="setQuery('What are the remote work eligibility guidelines?')">Remote Work Guidelines</div>
+                    <div class="sample-pill rag" onclick="setQuery('How does the RAG architecture pipeline work?')">RAG Architecture</div>
+                </div>
+
             </div>
 
             <!-- Pipeline Stepper Diagram -->
             <div class="pipeline-stepper">
                 <div class="step-card" id="step1">
                     <div class="step-num">Step 1</div>
-                    <div class="step-name">1. Text Extraction</div>
+                    <div class="step-name">1. Query Router</div>
                 </div>
                 <div class="step-card" id="step2">
                     <div class="step-num">Step 2</div>
-                    <div class="step-name">2. Chunker</div>
+                    <div class="step-name">2. Target Selection</div>
                 </div>
                 <div class="step-card" id="step3">
                     <div class="step-num">Step 3</div>
-                    <div class="step-name">3. Cosine Vector Search</div>
+                    <div class="step-name">3. Execution Engine</div>
                 </div>
                 <div class="step-card" id="step4">
                     <div class="step-num">Step 4</div>
-                    <div class="step-name">4. Context Assembly</div>
+                    <div class="step-name">4. Response Parsing</div>
                 </div>
                 <div class="step-card" id="step5">
                     <div class="step-num">Step 5</div>
-                    <div class="step-name">5. Grounded LLM Gen</div>
+                    <div class="step-name">5. Unified Synthesis</div>
                 </div>
             </div>
 
             <!-- Generated Answer Card -->
             <div class="answer-card" id="answerCard">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div class="card-title" style="color:var(--accent-emerald);">💡 Generated Synthesis</div>
-                    <span id="citationBadge" style="font-size:0.75rem; background:rgba(59,130,246,0.15); color:var(--accent-blue); padding:4px 10px; border-radius:12px; font-weight:700;">0 Citations</span>
+                    <div class="engine-source-badge">
+                        <span id="sourcePill" class="source-pill cortex">❄️ Snowflake Cortex Analyst</span>
+                        <span id="reasoningText" class="reasoning-pill">Intelligent Intent Routing</span>
+                    </div>
+                    <span id="citationBadge" style="font-size:0.75rem; background:rgba(59,130,246,0.15); color:var(--accent-blue); padding:4px 10px; border-radius:12px; font-weight:700;">Ready</span>
                 </div>
+                
                 <div class="answer-content" id="answerText">
-                    Enter a query above or ingest custom documents to execute the Retrieval-Augmented Generation pipeline.
+                    Ask any question above! The system will automatically route structured business data analytics questions to Snowflake Cortex Analyst and document knowledge questions to Enterprise RAG.
                 </div>
+
+                <!-- Generated SQL Viewer (For Cortex Analyst Queries) -->
+                <details id="sqlDetails" style="display:none; margin-top: 8px;">
+                    <summary style="color:var(--accent-cyan);">⚡ View Snowflake Generated SQL Statement & Confidence Metadata</summary>
+                    <div id="verifiedBadge" style="margin-top:8px; font-size:0.75rem; color:var(--accent-emerald); font-weight:700;"></div>
+                    <div class="sql-box" id="sqlViewer">// SQL Query statement will appear here</div>
+                    <div id="requestIdText" style="margin-top:6px; font-size:0.72rem; color:var(--text-muted); font-family:'JetBrains Mono', monospace;"></div>
+                </details>
+
                 <div class="metrics-bar">
                     <div class="metric-item">Total Latency: <span class="metric-val" id="metricTotalTime">0 ms</span></div>
-                    <div class="metric-item">Retrieval: <span class="metric-val" id="metricRetrievalTime">0 ms</span></div>
-                    <div class="metric-item">Generation: <span class="metric-val" id="metricGenTime">0 ms</span></div>
-                    <div class="metric-item">Top K: <span class="metric-val" id="metricTopK">3</span></div>
+                    <div class="metric-item">Engine: <span class="metric-val" id="metricEngine">Auto</span></div>
+                    <div class="metric-item" id="retrievalMetric">Retrieval: <span class="metric-val" id="metricRetrievalTime">0 ms</span></div>
                 </div>
             </div>
 
-            <!-- Retrieved Context Chunks -->
-            <div class="card">
+            <!-- Retrieved Context Chunks (For RAG Queries) -->
+            <div class="card" id="chunksContainer">
                 <div class="card-header">
                     <span class="card-title">🔍 Retrieved Vector Context Chunks</span>
                 </div>
                 <div class="chunks-grid" id="chunksGrid">
-                    <div style="font-size:0.8rem; color:var(--text-muted);">No chunks retrieved yet.</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">No context chunks retrieved yet.</div>
                 </div>
             </div>
 
             <!-- Context Inspector Accordion -->
-            <details>
+            <details id="contextDetails">
                 <summary>📄 View Full Prompt & Context Inspector</summary>
-                <pre id="rawContextViewer">// Formatted context block injected into LLM prompt will appear here...</pre>
+                <pre id="rawContextViewer" style="margin-top: 12px; background: #05070a; padding: 14px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #a7f3d0; overflow-x: auto; border: 1px solid var(--border-color);">// Formatted context block injected into LLM prompt will appear here...</pre>
             </details>
 
         </main>
     </div>
 
     <script>
-        // API Base URL
         const API_BASE = '/api';
+        let currentMode = 'auto';
 
-        // Load initial state
         window.addEventListener('DOMContentLoaded', () => {
             fetchHealth();
             fetchDocuments();
         });
+
+        function selectMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            if (mode === 'auto') document.getElementById('modeAuto').classList.add('active');
+            else if (mode === 'cortex_analyst') document.getElementById('modeCortex').classList.add('active');
+            else if (mode === 'rag') document.getElementById('modeRag').classList.add('active');
+        }
 
         async function fetchHealth() {
             try {
                 const res = await fetch(`${API_BASE}/health`);
                 const data = await res.json();
                 document.getElementById('statusText').innerText = data.status.toUpperCase();
-                document.getElementById('embedModelText').innerText = data.embedding_provider;
-                document.getElementById('llmModelText').innerText = data.llm_provider;
+                if (data.cortex_configured) {
+                    document.getElementById('cortexStatusText').innerText = 'Active (Connected)';
+                } else {
+                    document.getElementById('cortexStatusText').innerText = 'Missing PAT';
+                    document.getElementById('cortexStatusText').style.color = '#ef4444';
+                }
             } catch (err) {
                 console.error("Health check failed:", err);
             }
@@ -691,52 +818,82 @@
             const queryText = document.getElementById('queryInput').value.trim();
             if (!queryText) return;
 
-            // Highlight Pipeline Steps sequentially
             highlightStep(1);
-            setTimeout(() => highlightStep(2), 200);
-            setTimeout(() => highlightStep(3), 400);
+            setTimeout(() => highlightStep(2), 150);
+            setTimeout(() => highlightStep(3), 300);
 
-            document.getElementById('answerText').innerHTML = `<span style="color:var(--text-muted)">Searching vector store and synthesizing response...</span>`;
+            document.getElementById('answerText').innerHTML = `<span style="color:var(--text-muted)">Executing intelligence engine query...</span>`;
+            document.getElementById('sqlDetails').style.display = 'none';
 
             try {
                 const res = await fetch(`${API_BASE}/query`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: queryText, top_k: 3, similarity_threshold: 0.1 })
+                    body: JSON.stringify({ query: queryText, mode: currentMode })
                 });
 
                 highlightStep(4);
-                setTimeout(() => highlightStep(5), 300);
+                setTimeout(() => highlightStep(5), 250);
 
                 const data = await res.json();
 
                 // Render metrics
                 document.getElementById('metricTotalTime').innerText = `${data.total_time_ms} ms`;
-                document.getElementById('metricRetrievalTime').innerText = `${data.retrieval_time_ms} ms`;
-                document.getElementById('metricGenTime').innerText = `${data.generation_time_ms} ms`;
-                document.getElementById('citationBadge').innerText = `${data.citations.length} Citations`;
+                document.getElementById('metricEngine').innerText = data.source.toUpperCase();
+                document.getElementById('reasoningText').innerText = data.routing_reasoning || "Routed";
+
+                // Render Source Pill
+                const sourcePill = document.getElementById('sourcePill');
+                if (data.source === 'cortex_analyst') {
+                    sourcePill.className = 'source-pill cortex';
+                    sourcePill.innerHTML = '❄️ Snowflake Cortex Analyst';
+                    document.getElementById('citationBadge').innerText = 'Snowflake Data';
+                    
+                    // Show SQL if available
+                    if (data.sql) {
+                        document.getElementById('sqlDetails').style.display = 'block';
+                        document.getElementById('sqlViewer').innerText = data.sql;
+                        if (data.verified_query_used) {
+                            document.getElementById('verifiedBadge').innerText = '✓ Verified Query Match Used';
+                        } else {
+                            document.getElementById('verifiedBadge').innerText = '⚡ Dynamic SQL Query Generated';
+                        }
+                        document.getElementById('requestIdText').innerText = data.request_id ? `Request ID: ${data.request_id}` : '';
+                    }
+
+                    // Hide RAG chunks grid
+                    document.getElementById('chunksContainer').style.display = 'none';
+                    document.getElementById('contextDetails').style.display = 'none';
+
+                } else {
+                    sourcePill.className = 'source-pill rag';
+                    sourcePill.innerHTML = '📄 Enterprise Document RAG';
+                    document.getElementById('citationBadge').innerText = `${data.citations ? data.citations.length : 0} Citations`;
+
+                    // Show RAG chunks grid
+                    document.getElementById('chunksContainer').style.display = 'block';
+                    document.getElementById('contextDetails').style.display = 'block';
+
+                    const chunksGrid = document.getElementById('chunksGrid');
+                    if (!data.retrieved_chunks || data.retrieved_chunks.length === 0) {
+                        chunksGrid.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No context chunks matched.</div>`;
+                    } else {
+                        chunksGrid.innerHTML = data.retrieved_chunks.map(c => `
+                            <div class="chunk-card">
+                                <div class="chunk-card-header">
+                                    <span>📄 ${c.file_name} (Chunk #${c.chunk_index})</span>
+                                    <span class="chunk-score">Score: ${c.score}</span>
+                                </div>
+                                <div class="chunk-text">${escapeHtml(c.text)}</div>
+                            </div>
+                        `).join('');
+                    }
+
+                    document.getElementById('rawContextViewer').innerText = data.formatted_context || '// No context available';
+                }
 
                 // Render Answer
                 document.getElementById('answerText').innerText = data.answer;
-
-                // Render Chunks
-                const chunksGrid = document.getElementById('chunksGrid');
-                if (!data.retrieved_chunks || data.retrieved_chunks.length === 0) {
-                    chunksGrid.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No context chunks matched the similarity threshold.</div>`;
-                } else {
-                    chunksGrid.innerHTML = data.retrieved_chunks.map(c => `
-                        <div class="chunk-card">
-                            <div class="chunk-card-header">
-                                <span>📄 ${c.file_name} (Chunk #${c.chunk_index})</span>
-                                <span class="chunk-score">Score: ${c.score}</span>
-                            </div>
-                            <div class="chunk-text">${escapeHtml(c.text)}</div>
-                        </div>
-                    `).join('');
-                }
-
-                // Render Raw Context
-                document.getElementById('rawContextViewer').innerText = data.formatted_context;
 
             } catch (err) {
                 document.getElementById('answerText').innerText = `Error processing query: ${err}`;
