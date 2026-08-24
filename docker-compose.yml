@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  rag-poc:
+    build: .
+    container_name: enterprise_rag_poc
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME="Enterprise Knowledge Intelligence RAG POC"
+      - EMBEDDING_PROVIDER=sentence-transformers
+      - LLM_PROVIDER=mock
+      - PORT=8000
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

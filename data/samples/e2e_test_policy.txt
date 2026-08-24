@@ -1,0 +1,1 @@
+Enterprise Compliance Directive 2026: All code deployments must undergo mandatory automated security vulnerability scanning before promotion to production environments.

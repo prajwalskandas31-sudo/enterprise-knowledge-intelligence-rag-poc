@@ -1,0 +1,18 @@
+ENTERPRISE HUMAN RESOURCES: REMOTE WORK GUIDELINES
+
+1. Purpose and Scope
+This policy outlines the guidelines and eligibility criteria for employees seeking remote or hybrid work arrangements.
+
+2. Eligibility Criteria
+- Full-time employees who have completed at least 90 days of continuous service.
+- Roles classified as "Remote-Compatible" by departmental management.
+- Demonstrated performance meeting or exceeding expectations during the previous quarter.
+
+3. Working Hours & Core Availability
+- Remote employees must maintain core working hours from 9:00 AM to 5:00 PM in their respective local time zone.
+- Employees must be reachable via company Slack, Email, and video conference calls during core hours.
+- A minimum internet speed of 50 Mbps download and 10 Mbps upload is required for remote workstations.
+
+4. Equipment Allowance
+- The company provides a laptop, dual monitor setup, and a one-time ergonomic stipend of $500 for home office setup.
+- All equipment remains property of the enterprise and must be returned upon employment termination.
